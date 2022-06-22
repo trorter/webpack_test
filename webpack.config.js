@@ -29,6 +29,14 @@ module.exports = {
       {
         test: /\.(png|jpg|svg|gif)$/,
         type: 'asset/resource'
+      },
+      {
+        test: /\.xml$/,
+        use: ['xml-loader'],
+      },
+      {
+        test: /\.csv$/,
+        use: ['csv-loader'],
       }
     ]
   }
