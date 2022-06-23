@@ -3,8 +3,28 @@ const HTMLWebpackPlugin = require('html-webpack-plugin')
 const {CleanWebpackPlugin} = require('clean-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const CssMinimizerWebpackPlugin = require('css-minimizer-webpack-plugin')
+const TerserWebpackPlugin = require('terser-webpack-plugin')
 
 const isDev = process.env.NODE_ENV === 'devepolment'
+const isProd = !isDev
+
+const optimization = () => {
+  let config = {
+    splitChunks: {
+      chunks: 'all'
+    }
+  }
+
+  if (isProd) {
+    config.minimizer = [
+      new CssMinimizerWebpackPlugin(),
+      new TerserWebpackPlugin()
+    ]
+  }
+
+  return config
+}
 
 module.exports = {
   context: path.resolve(__dirname, 'src'),
@@ -28,14 +48,11 @@ module.exports = {
     port: 4200,
     hot: isDev
   },
-  optimization: {
-    splitChunks: {
-      chunks: 'all'
-    }
-  },
+  optimization: optimization(),
   plugins: [
     new HTMLWebpackPlugin({
-      template: "./index.html"
+      template: "./index.html",
+      minify: isProd
     }),
     new CleanWebpackPlugin(),
     new CopyWebpackPlugin({
@@ -78,6 +95,16 @@ module.exports = {
       {
         test: /\.csv$/,
         use: ['csv-loader'],
+      },
+      {
+        test: /\.m?js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env']
+          }
+        }
       }
     ]
   }
